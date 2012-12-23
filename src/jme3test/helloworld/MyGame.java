@@ -11,8 +11,10 @@ import com.jme3.animation.LoopMode;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
+import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -21,6 +23,7 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -43,6 +46,7 @@ public class MyGame extends SimpleApplication implements ActionListener, AnimEve
     private boolean left = false, right = false;
     private CharacterControl player;
     Node playerModel;
+    Node stage;
     private float airtime = 0;
     
     @Override
@@ -56,17 +60,17 @@ public class MyGame extends SimpleApplication implements ActionListener, AnimEve
         stateManager.attach(bulletAppState);
         
         //First, create geometry (or in this case, the model)
-        playerModel = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.j3o");
-        playerModel.setLocalScale(0.5f);
-        playerModel.setLocalTranslation(0,0f,0f);
+        playerModel = (Node) assetManager.loadModel("Models/Tahu/Plane.007.mesh.j3o");
+        playerModel.setLocalScale(0.3f);
+        playerModel.setLocalTranslation(0,-2.2f,0f);
         Node center = new Node();
         center.attachChild(playerModel);
         
-        control = playerModel.getControl(AnimControl.class);
+        /*control = playerModel.getControl(AnimControl.class);
         control.addListener(this);
         channel = control.createChannel();
         channel.setLoopMode(LoopMode.DontLoop);
-        channel.setSpeed(4f);
+        channel.setSpeed(4f);*/
         //channel.setAnim("my_animation"); 
         //Next, attach material (no material needed for model)
         /*Material p1mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -86,24 +90,29 @@ public class MyGame extends SimpleApplication implements ActionListener, AnimEve
         
         
         //First, create geometry
-        Box floor = new Box(Vector3f.ZERO,10f,0.1f,10f);
+        /*Box floor = new Box(Vector3f.ZERO,10f,0.1f,10f);
         Geometry floor_geo = new Geometry("Floor", floor);
        
         //Then, attach material
         Material floor_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         floor_mat.setColor("Color",ColorRGBA.Gray);
-        floor_geo.setMaterial(floor_mat);
+        floor_geo.setMaterial(floor_mat);*/
+        
+        stage = (Node)assetManager.loadModel("Models/Stage/Cube.mesh.xml");
+        stage.setLocalScale(new Vector3f(13f,1.5f,4f));
+        stage.rotate(0,-FastMath.PI/2,0);
         
         //Then, create physics
-        RigidBodyControl box_phy = new RigidBodyControl(0);
-        floor_geo.addControl(box_phy);
-        box_phy.setPhysicsLocation(new Vector3f(0,-10,0));
+        //CollisionShape stage_shape = CollisionShapeFactory.createMeshShape(stage);
+        //RigidBodyControl stage_phy = new RigidBodyControl(stage_shape, 0);
+        //stage.addControl(stage_phy);
+        //stage_phy.setPhysicsLocation(new Vector3f(0,-10,0));
 
         //Then, attach physics and make visible
-        bulletAppState.getPhysicsSpace().add(box_phy);
-        rootNode.attachChild(floor_geo);
+        //bulletAppState.getPhysicsSpace().add(stage_phy);
+        rootNode.attachChild(stage);
         
-        //bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         
         
         
@@ -112,8 +121,8 @@ public class MyGame extends SimpleApplication implements ActionListener, AnimEve
         chasecam.setDefaultVerticalRotation(FastMath.PI/1.1f);
         
         initKeys();
-        
-        for (String anim : control.getAnimationNames()) { System.out.println(anim); }
+        hitboxes();
+        //for (String anim : control.getAnimationNames()) { System.out.println(anim); }
     }
     
     private void initKeys() {
@@ -123,6 +132,11 @@ public class MyGame extends SimpleApplication implements ActionListener, AnimEve
         inputManager.addListener(this,"Left");
         inputManager.addListener(this,"Right");
         inputManager.addListener(this,"Jump");
+        
+    }
+    
+    private void hitboxes() {
+     //   MyCustomControl hitbox = new MyCustomControl();
         
     }
     
@@ -151,7 +165,7 @@ public class MyGame extends SimpleApplication implements ActionListener, AnimEve
     public void simpleUpdate(float tpf) {
         
         
-        Vector3f camLeft = cam.getLeft().clone().multLocal(0.25f);
+       /* Vector3f camLeft = cam.getLeft().clone().multLocal(0.25f);
         walkDirection.set(0,0,0);
         if(left){
             walkDirection.addLocal(camLeft);
@@ -180,7 +194,7 @@ public class MyGame extends SimpleApplication implements ActionListener, AnimEve
                   channel.setAnim("Walk", 0.7f);
             }
         }
-        player.setWalkDirection(walkDirection);
+        player.setWalkDirection(walkDirection);*/
     }
 
     public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
